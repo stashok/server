@@ -1,0 +1,52 @@
+﻿<h3>Login</h3>
+<div><p>Login</p><input type="text" name="UserName" id="UserName" required> </div>
+<div><p>Password</p><input type="password" name="Password" id="Password" required> </div>
+<div><button onclick="signIn()" />Login</div>
+<div><button onclick="back()" />Registration</div>
+
+
+<script>
+
+
+    function back() {
+        location.href = "/Home/Registration";
+    }
+
+    signIn = function () {
+        var tokenKey = "tokenInfo";
+        var data = {
+            grant_type: 'password',
+            username: $("#UserName").val(),
+            password: $("#Password").val()
+        };
+
+        $.ajax({
+            async: false,
+            type: 'POST',
+            url: '/token',
+            contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+            dataType: 'json',
+            data: data
+        }).done(function (data) {
+            var expire = new Date();
+            expire.setHours(expire.getHours() + 4);
+            document.cookie = "tokenInfo=" + data.access_token + "; path=/; expires=" + expire.toUTCString() + ";";
+            location.href = "/Home/MyMessage";
+        })
+    }
+
+    function getCookiePartByKey(key) {
+        var value = "; " + document.cookie;
+        var parts = value.split("; " + key + "=");
+        if (parts.length == 2) return parts.pop().split(";").shift();
+    }
+
+    function IfLoginedRedirectToMain() {
+        var tokenKey = "tokenInfo";
+        if (getCookiePartByKey(tokenKey) != null) location.href = "/Home/MyMessage";
+    }
+    IfLoginedRedirectToMain();
+
+    IfLoginedRedirectToMain();
+
+</script>

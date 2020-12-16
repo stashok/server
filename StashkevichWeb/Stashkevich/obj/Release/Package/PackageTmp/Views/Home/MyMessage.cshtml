@@ -1,0 +1,74 @@
+﻿
+@{
+    ViewBag.Title = "MyMessage";
+}
+<div id="stat"></div>
+<div id="wrapper"></div>
+<button onclick="back()">Send Message</button>
+<button onclick="logout()">LogOut</button>
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+<script>
+
+
+    function logout() {
+        document.cookie.split(";").forEach(function (el) {
+            el = el.split("=")[0].trim();
+            if (!el.indexOf("tokenInfo")) {
+                document.cookie = el + "=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC";
+                location.href = "/Home/Index";
+            }
+        })
+    }
+
+    $(document).ready(function () {
+        var tokenKey = "tokenInfo";
+        $.ajax({
+            async: false,
+            type: 'GET',
+            url: '/api/message/GetMyMessage',
+            contentType: 'application/json; charset=UTF-8',
+            beforeSend: function (xhr) {
+                var token = getCookiePartByKey(tokenKey);
+                xhr.setRequestHeader("Authorization", "Bearer " + token);
+            }
+        }).done(function (data) {
+            var obj = jQuery.parseJSON(data);
+            console.log(obj);
+            for (i = 0; i < obj.length; i++) {
+                var date = new Date(Date.parse(obj[i].date));
+                $('#wrapper').append('<p> TEXT: <b>' + obj[i].text + '</b> TIME: <b>' + date + '</b> </p>');
+            }
+        })
+    });
+
+    $(document).ready(function () {
+        var tokenKey = "tokenInfo";
+        $.ajax({
+            async: false,
+            type: 'GET',
+            url: '/api/message/GetMyStat',
+            contentType: 'application/json; charset=UTF-8',
+            beforeSend: function (xhr) {
+                var token = getCookiePartByKey(tokenKey);
+                xhr.setRequestHeader("Authorization", "Bearer " + token);
+            }
+        }).done(function (data) {
+            var obj = jQuery.parseJSON(data);
+            console.log(obj);
+            $('#stat').append('<h2> RECIEVED MESSAGES: <b>' + obj.recv + '</b> </h2>' + '<h2> SENDED MESSAGES: <b>' + obj.send + '</b></h2>');
+        })
+    });
+
+    function getCookiePartByKey(key) {
+        var value = "; " + document.cookie;
+        var parts = value.split("; " + key + "=");
+        if (parts.length == 2) return parts.pop().split(";").shift();
+    }
+
+    function back() {
+        location.href = "/Home/Message";
+    }
+
+</script>

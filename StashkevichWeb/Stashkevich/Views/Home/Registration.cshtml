@@ -1,0 +1,46 @@
+﻿<h3>Register</h3>
+<div><p>UserName</p><input type="text" name="UserName" id="UserName" required> </div>
+<div><p>Password</p><input type="password" name="Password" id="Password" required> </div>
+<div><button onclick="register()" />Login</div>
+
+
+<script>
+
+
+    register = function () {
+        var tokenKey = "tokenInfo";
+        var data = {
+            UserName: $("#UserName").val(),
+            Password: $("#Password").val(),
+            isAdmin: 0
+        }
+        $.ajax({
+            type: 'POST',
+            url: '/api/user/CreateUser',
+            contentType: 'application/json; charset=UTF-8',
+            data: JSON.stringify(data),
+            beforeSend: function (xhr) {
+                var token = getCookiePartByKey(tokenKey);
+                xhr.setRequestHeader("Authorization", "Bearer " + token);
+            }
+        }).done(function (data) {
+            location.href ="/Home/Index"
+        })
+    }
+
+
+    function getCookiePartByKey(key) {
+        var value = "; " + document.cookie;
+        var parts = value.split("; " + key + "=");
+        if (parts.length == 2) return parts.pop().split(";").shift();
+    }
+
+    function IfLoginedRedirectToMain() {
+        var tokenKey = "tokenInfo";
+        if (getCookiePartByKey(tokenKey) != null) location.href = "/Home/MyMessage";
+    }
+    IfLoginedRedirectToMain();
+
+    IfLoginedRedirectToMain();
+
+</script>
